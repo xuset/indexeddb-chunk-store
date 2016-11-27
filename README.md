@@ -1,4 +1,4 @@
-# idb-chunk-store [![Build Status](https://travis-ci.org/xuset/idb-chunk-store.svg?branch=master)](https://travis-ci.org/xuset/idb-chunk-store)
+# indexdb-chunk-store [![Build Status](https://travis-ci.org/xuset/indexdb-chunk-store.svg?branch=master)](https://travis-ci.org/xuset/indexdb-chunk-store)
 
 #### An [abstract-chunk-store](https://www.npmjs.com/package/abstract-chunk-store) compliant store backed by IndexDB for the browser
 
@@ -6,7 +6,7 @@
 
 ## Install
 
-`npm install idb-chunk-store`
+`npm install indexdb-chunk-store`
 
 This module can be used with browserify or the [idbchunkstore.min.js](idbchunkstore.min.js) script can be included which will attach `IdbChunkStore` to `window`
 

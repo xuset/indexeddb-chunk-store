@@ -1,5 +1,5 @@
 {
-  "name": "idb-chunk-store",
+  "name": "indexdb-chunk-store",
   "version": "1.0.0",
   "description": "A Chunk Store compatible store backed by IndexDB",
   "main": "index.js",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xuset/idb-chunk-store.git"
+    "url": "git+https://github.com/xuset/indexdb-chunk-store.git"
   },
   "keywords": [
     "abstract-chunk-store",
@@ -23,9 +23,9 @@
   "author": "xuset",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/xuset/idb-chunk-store/issues"
+    "url": "https://github.com/xuset/indexdb-chunk-store/issues"
   },
-  "homepage": "https://github.com/xuset/idb-chunk-store#readme",
+  "homepage": "https://github.com/xuset/indexdb-chunk-store#readme",
   "dependencies": {
     "idb-kv-store": "^2.2.0"
   },
