@@ -4,6 +4,7 @@ var IdbKvStore = require('idb-kv-store')
 
 function IdbChunkStore (chunkLength, opts) {
   var self = this
+  if (typeof chunkLength !== 'number') throw new Error('chunkLength must be a number')
   if (!(self instanceof IdbChunkStore)) return new IdbChunkStore(chunkLength, opts)
   if (!opts) opts = {}
 
@@ -21,16 +22,14 @@ function IdbChunkStore (chunkLength, opts) {
 IdbChunkStore.prototype.put = function (index, buffer, cb) {
   var self = this
   if (!cb) cb = noop
-  if (!self._store) return cb(new Error('Store is closed'))
-  if (typeof index !== 'number') return cb(new Error('index must be a number'))
-  if (!buffer) return cb(new Error('buffer must be defined'))
+  if (!self._store) throw new Error('Store is closed')
+  if (typeof index !== 'number') throw new Error('index must be a number')
+  if (!Buffer.isBuffer(buffer)) throw new Error('buffer must be a Buffer')
 
   var isLastChunk = (index === self.lastChunkIndex)
   var badLength = (isLastChunk && buffer.length !== self.lastChunkLength) ||
                   (!isLastChunk && buffer.length !== self.chunkLength)
-  if (badLength) return cb(new Error('Invalid buffer length'))
-
-  // TODO check if buffer is actually a buffer
+  if (badLength) return process.nextTick(cb, new Error('Invalid buffer length'))
 
   self._store.set(index, buffer, cb)
 }
@@ -39,8 +38,8 @@ IdbChunkStore.prototype.get = function (index, opts, cb) {
   var self = this
   if (typeof opts === 'function') return self.get(index, null, opts)
   if (typeof cb !== 'function') throw new Error('cb must be a function')
-  if (!self._store) return cb(new Error('Store is closed'))
-  if (typeof index !== 'number') return cb(new Error('index must be a number'))
+  if (!self._store) throw new Error('Store is closed')
+  if (typeof index !== 'number') throw new Error('index must be a number')
   if (!opts) opts = {}
 
   self._store.get(index, function (err, buffer) {
@@ -55,16 +54,16 @@ IdbChunkStore.prototype.get = function (index, opts, cb) {
 IdbChunkStore.prototype.close = function (cb) {
   var self = this
   if (!cb) cb = noop
-  if (!self._store) return cb(new Error('Store is closed'))
+  if (!self._store) throw new Error('Store is closed')
 
   self._store = null
-  cb(null)
+  process.nextTick(cb, null)
 }
 
 IdbChunkStore.prototype.destroy = function (cb) {
   var self = this
   if (!cb) cb = noop
-  if (!self._store) return cb(new Error('Store is closed'))
+  if (!self._store) throw new Error('Store is closed')
 
   var s = self._store
   self._store = null
