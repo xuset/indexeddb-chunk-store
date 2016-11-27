@@ -36,7 +36,6 @@ test('buffer conversions', function (t) {
       t.end()
     })
   })
-
 })
 
 test('close()', function (t) {
