@@ -19,11 +19,24 @@ test('programmer errors', function (t) {
   var store = IdbChunkStore(10, {length: 15})
 
   t.throws(function () { store.put('foo', new Buffer('0123456789')) })
-  t.throws(function () { store.put(0, 'bar') })
 
   t.throws(function () { store.get(0) })
   t.throws(function () { store.get('foo', function () {}) })
   t.end()
+})
+
+test('buffer conversions', function (t) {
+  var store = IdbChunkStore(3)
+  store.put(0, 'foo', function (err) {
+    t.equal(err, null)
+    store.get(0, function (err, buffer) {
+      t.equal(err, null)
+      t.ok(buffer instanceof Buffer)
+      t.equal(buffer.toString(), 'foo')
+      t.end()
+    })
+  })
+
 })
 
 test('close()', function (t) {

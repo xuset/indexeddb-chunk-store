@@ -24,7 +24,7 @@ IdbChunkStore.prototype.put = function (index, buffer, cb) {
   if (!cb) cb = noop
   if (!self._store) throw new Error('Store is closed')
   if (typeof index !== 'number') throw new Error('index must be a number')
-  if (!Buffer.isBuffer(buffer)) throw new Error('buffer must be a Buffer')
+  if (!Buffer.isBuffer(buffer)) buffer = new Buffer(buffer)
 
   var isLastChunk = (index === self.lastChunkIndex)
   var badLength = (isLastChunk && buffer.length !== self.lastChunkLength) ||
