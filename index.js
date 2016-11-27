@@ -4,10 +4,17 @@ var IdbKvStore = require('idb-kv-store')
 
 function IdbChunkStore (chunkLength, opts) {
   var self = this
-  if (!(this instanceof IdbChunkStore)) return new IdbChunkStore(chunkLength)
+  if (!(self instanceof IdbChunkStore)) return new IdbChunkStore(chunkLength, opts)
   if (!opts) opts = {}
 
   self.chunkLength = chunkLength
+  self.length = Number(opts.length) || Infinity
+
+  if (self.length !== Infinity) {
+    this.lastChunkLength = (this.length % this.chunkLength) || this.chunkLength
+    self.lastChunkIndex = Math.ceil(self.length / self.chunkLength) - 1
+  }
+
   self._store = new IdbKvStore(opts.name || '' + Math.round(9e16 * Math.random()))
 }
 
@@ -17,7 +24,12 @@ IdbChunkStore.prototype.put = function (index, buffer, cb) {
   if (!self._store) return cb(new Error('Store is closed'))
   if (typeof index !== 'number') return cb(new Error('index must be a number'))
   if (!buffer) return cb(new Error('buffer must be defined'))
-  if (buffer.length !== self.chunkLength) return cb(new Error('The buffer length must match the chunkLength'))
+
+  var isLastChunk = (index === self.lastChunkIndex)
+  var badLength = (isLastChunk && buffer.length !== self.lastChunkLength) ||
+                  (!isLastChunk && buffer.length !== self.chunkLength)
+  if (badLength) return cb(new Error('Invalid buffer length'))
+
   // TODO check if buffer is actually a buffer
 
   self._store.set(index, buffer, cb)
