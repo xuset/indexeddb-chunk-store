@@ -1,4 +1,4 @@
-# indexdb-chunk-store [![Build Status](https://travis-ci.org/xuset/indexdb-chunk-store.svg?branch=master)](https://travis-ci.org/xuset/indexdb-chunk-store)
+# indexdb-chunk-store [![Build Status](https://travis-ci.org/xuset/indexdb-chunk-store.svg?branch=master)](https://travis-ci.org/xuset/indexdb-chunk-store) [![npm](https://img.shields.io/npm/v/indexdb-chunk-store.svg)](https://npmjs.org/package/indexdb-chunk-store)
 
 #### An [abstract-chunk-store](https://www.npmjs.com/package/abstract-chunk-store) compliant store backed by IndexDB for the browser
 
