@@ -16,7 +16,10 @@ function IdbChunkStore (chunkLength, opts) {
     self.lastChunkIndex = Math.ceil(self.length / self.chunkLength) - 1
   }
 
-  self._store = new IdbKvStore(opts.name || '' + Math.round(9e16 * Math.random()))
+  var name = opts.name || '' + Math.round(9e16 * Math.random())
+  // for webtorrent
+  if (opts.torrent && opts.torrent.infoHash) name = opts.torrent.infoHash
+  self._store = new IdbKvStore(name)
 }
 
 IdbChunkStore.prototype.put = function (index, buffer, cb) {
