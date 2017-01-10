@@ -30,7 +30,7 @@
   },
   "homepage": "https://github.com/xuset/indexeddb-chunk-store#readme",
   "dependencies": {
-    "idb-kv-store": "^2.2.0"
+    "idb-kv-store": "^3.0.0"
   },
   "devDependencies": {
     "abstract-chunk-store": "^1.2.1",
