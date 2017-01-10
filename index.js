@@ -2,10 +2,11 @@ module.exports = IdbChunkStore
 
 var IdbKvStore = require('idb-kv-store')
 
-function IdbChunkStore (chunkLength, opts) {
+function IdbChunkStore (chunkLength, opts, cb) {
   var self = this
   if (typeof chunkLength !== 'number') throw new Error('chunkLength must be a number')
-  if (!(self instanceof IdbChunkStore)) return new IdbChunkStore(chunkLength, opts)
+  if (typeof opts === 'function') return IdbChunkStore(chunkLength, null, opts)
+  if (!(self instanceof IdbChunkStore)) return new IdbChunkStore(chunkLength, opts, cb)
   if (!opts) opts = {}
 
   self.chunkLength = chunkLength
@@ -19,7 +20,7 @@ function IdbChunkStore (chunkLength, opts) {
   var name = opts.name || '' + Math.round(9e16 * Math.random())
   // for webtorrent
   if (opts.torrent && opts.torrent.infoHash) name = opts.torrent.infoHash
-  self._store = new IdbKvStore(name)
+  self._store = new IdbKvStore(name, cb)
 }
 
 IdbChunkStore.prototype.put = function (index, buffer, cb) {
@@ -55,22 +56,22 @@ IdbChunkStore.prototype.get = function (index, opts, cb) {
 }
 
 IdbChunkStore.prototype.close = function (cb) {
-  var self = this
   if (!cb) cb = noop
-  if (!self._store) throw new Error('Store is closed')
-
-  self._store = null
+  if (this._store) this._store.close()
+  this._store = null
   process.nextTick(cb, null)
 }
 
 IdbChunkStore.prototype.destroy = function (cb) {
   var self = this
-  if (!cb) cb = noop
-  if (!self._store) throw new Error('Store is closed')
 
-  var s = self._store
+  var store = self._store
   self._store = null
-  s.clear(cb)
+
+  store.clear(function (err) {
+    store.close()
+    if (cb) cb(err)
+  })
 }
 
 function noop () {

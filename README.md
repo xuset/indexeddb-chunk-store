@@ -8,7 +8,7 @@
 
 `npm install indexeddb-chunk-store`
 
-This module can be used with browserify or the [idbchunkstore.min.js](idbchunkstore.min.js) script can be included which will attach `IdbChunkStore` to `window`
+This module can be used with browserify or the [idbchunkstore.min.js](https://raw.githubusercontent.com/xuset/indexeddb-chunk-store/master/idbchunkstore.min.js) script can be included which will attach `IdbChunkStore` to `window`
 
 ## Usage
 
@@ -28,11 +28,13 @@ chunks.put(0, new Buffer('01234567890'), function (err) {
 
 The api is compatible with [abstract-chunk-store](https://github.com/mafintosh/abstract-chunk-store#api) so look there for the api docs. There is one difference from abstract-chunk-store and that is that the IdbChunkStore constrcutor.
 
-### `new IdbChunkStore(chunkLength, [opts])`
+### `new IdbChunkStore(chunkLength, [opts], [cb])`
 
-Creates a new store with the given `chunkLength`. `opts` can have the following properties:
+Creates a new store with the given `chunkLength`. The following properties can be passed into `opts`:
 * `opts.name` - The name of the IndexedDB database to open. If left undefined, a random database name is generated. If you reuse the same name across multiple IdbChunkStore instances or even web sessions, the data in the store will persist across these instances and sessions.
 * `opts.length` - Limits the size of the chunk store. If left undefined, the store is not constrained by a max size.
+
+`cb` is called when the IndexedDB database is opened. Put and get operations can still be done before the db is opened, but they will be queued then processed upon a successful open. If an error occures while opening, the callback is called with `cb(err)` where err is non-null.
 
 ## License
 

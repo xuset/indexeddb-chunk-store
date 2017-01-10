@@ -44,8 +44,14 @@ test('close()', function (t) {
     t.equal(err, null)
     t.throws(function () { store.put(0, new Buffer('0123456789'), function () {}) })
     t.throws(function () { store.get(0, function () {}) })
-    t.throws(function () { store.close() })
+    t.doesNotThrow(function () { store.close() })
     t.throws(function () { store.destroy() })
-    t.end()
+    store = IdbChunkStore(10, function (err) {
+      t.equal(err, null)
+      store.close(function (err) {
+        t.equal(err, null)
+        t.end()
+      })
+    })
   })
 })
