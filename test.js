@@ -57,6 +57,31 @@ test('close()', function (t) {
   })
 })
 
+test.skip('contention', function (t) {
+  t.timeoutAfter(3000)
+  var buffer = new Buffer(10)
+  var store = IdbChunkStore(10)
+  var done = false
+
+  setTimeout(function () {
+    store.get(0, function (err, buff) {
+      done = true
+      t.equal(err, null)
+      t.ok(buff.equals(buffer))
+      t.end()
+    })
+  }, 1000)
+
+  put()
+
+  function put () {
+    for (var i = 0; i < 100; i++) {
+      store.put(i, buffer)
+    }
+    if (!done) setTimeout(put, 0)
+  }
+})
+
 test.skip('benchmark', function (t) {
   var chunkSize = 4 * 1024
   var chunkCount = 10000

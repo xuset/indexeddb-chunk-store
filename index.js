@@ -12,6 +12,12 @@ function IdbChunkStore (chunkLength, opts, cb) {
   self.chunkLength = chunkLength
   self.length = Number(opts.length) || Infinity
 
+  self._groupPutDelay = opts.groupPutDelay || 10
+  self._groupPutCallbacks = []
+  self._groupPutData = {}
+  self._groupPutTimeout = null
+  self._lastGroupPut = 0
+
   if (self.length !== Infinity) {
     this.lastChunkLength = (this.length % this.chunkLength) || this.chunkLength
     self.lastChunkIndex = Math.ceil(self.length / self.chunkLength) - 1
@@ -25,7 +31,6 @@ function IdbChunkStore (chunkLength, opts, cb) {
 
 IdbChunkStore.prototype.put = function (index, buffer, cb) {
   var self = this
-  if (!cb) cb = noop
   if (!self._store) throw new Error('Store is closed')
   if (typeof index !== 'number') throw new Error('index must be a number')
   if (!Buffer.isBuffer(buffer)) buffer = new Buffer(buffer)
@@ -33,9 +38,37 @@ IdbChunkStore.prototype.put = function (index, buffer, cb) {
   var isLastChunk = (index === self.lastChunkIndex)
   var badLength = (isLastChunk && buffer.length !== self.lastChunkLength) ||
                   (!isLastChunk && buffer.length !== self.chunkLength)
-  if (badLength) return process.nextTick(cb, new Error('Invalid buffer length'))
+  if (badLength) return nextTick(cb, new Error('Invalid buffer length'))
 
-  self._store.set(index, buffer, cb)
+  self._groupPutData[index] = buffer
+  if (cb) self._groupPutCallbacks.push(cb)
+
+  if (self._lastGroupPut + self._groupPutDelay < new Date().getTime()) {
+    self._groupPut()
+  } else if (self._groupPutTimeout == null) {
+    self._groupPutTimeout = setTimeout(self._groupPut.bind(self), self._groupPutDelay)
+  }
+}
+
+IdbChunkStore.prototype._groupPut = function () {
+  var self = this
+  var callbacks = self._groupPutCallbacks
+  var data = self._groupPutData
+
+  self._groupPutCallbacks = []
+  self._groupPutData = {}
+  self._lastGroupPut = new Date().getTime()
+
+  if (self._groupPutTimeout != null) clearTimeout(self._groupPutTimeout)
+  self._groupPutTimeout = null
+
+  var trans = self._store.transaction('readwrite')
+  for (var i in data) trans.set(Number(i), data[i])
+  trans.onfinish = function (err) {
+    for (var j in callbacks) {
+      callbacks[j](err)
+    }
+  }
 }
 
 IdbChunkStore.prototype.get = function (index, opts, cb) {
@@ -56,10 +89,9 @@ IdbChunkStore.prototype.get = function (index, opts, cb) {
 }
 
 IdbChunkStore.prototype.close = function (cb) {
-  if (!cb) cb = noop
   if (this._store) this._store.close()
   this._store = null
-  process.nextTick(cb, null)
+  nextTick(cb, null)
 }
 
 IdbChunkStore.prototype.destroy = function (cb) {
@@ -74,6 +106,8 @@ IdbChunkStore.prototype.destroy = function (cb) {
   })
 }
 
-function noop () {
-  // do nothing
+function nextTick () {
+  if (arguments[0] != null) {
+    process.nextTick.apply(this, arguments)
+  }
 }
