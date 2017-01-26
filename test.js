@@ -1,6 +1,7 @@
 var IdbChunkStore = require('.')
 var abstractTests = require('abstract-chunk-store/tests')
 var test = require('tape')
+var runParallel = require('run-parallel')
 
 abstractTests(test, IdbChunkStore)
 
@@ -53,5 +54,31 @@ test('close()', function (t) {
         t.end()
       })
     })
+  })
+})
+
+test.skip('benchmark', function (t) {
+  var chunkSize = 4 * 1024
+  var chunkCount = 10000
+  var chunk = Buffer.alloc(chunkSize)
+
+  var store = IdbChunkStore(chunkSize)
+  var tasks = []
+  for (var i = 0; i < chunkCount; i++) {
+    (function (index) {
+      tasks.push(function (cb) {
+        store.put(index, chunk, cb)
+      })
+    })(i)
+  }
+
+  var start = Date.now()
+  runParallel(tasks, function (err) {
+    t.equal(err, null)
+    var time = (Date.now() - start) / 1000
+    var size = 8 * chunkSize * chunkCount / 1024 / 1024
+    var speed = Math.round(size / time)
+    t.comment('SIZE=' + size + 'Mib  TIME=' + time + 's  SPEED=' + speed + 'Mib/s')
+    t.end()
   })
 })
