@@ -11,6 +11,7 @@ function IdbChunkStore (chunkLength, opts, cb) {
 
   self.chunkLength = chunkLength
   self.length = Number(opts.length) || Infinity
+  self.closed = false
 
   self._groupPutDelay = opts.groupPutDelay || 10
   self._groupPutCallbacks = []
@@ -26,12 +27,23 @@ function IdbChunkStore (chunkLength, opts, cb) {
   var name = opts.name || '' + Math.round(9e16 * Math.random())
   // for webtorrent
   if (opts.torrent && opts.torrent.infoHash) name = opts.torrent.infoHash
+
   self._store = new IdbKvStore(name, cb)
+  self._store.on('close', onClose)
+  self._store.on('error', onError)
+
+  function onClose () {
+    self._close(new Error('IndexedDB database unexpectedly closed'))
+  }
+
+  function onError (err) {
+    self._close(err)
+  }
 }
 
 IdbChunkStore.prototype.put = function (index, buffer, cb) {
   var self = this
-  if (!self._store) throw new Error('Store is closed')
+  if (self.closed) throw new Error('Store is closed')
   if (typeof index !== 'number') throw new Error('index must be a number')
   if (!Buffer.isBuffer(buffer)) buffer = new Buffer(buffer)
 
@@ -52,6 +64,7 @@ IdbChunkStore.prototype.put = function (index, buffer, cb) {
 
 IdbChunkStore.prototype._groupPut = function () {
   var self = this
+  if (self.closed) return
   var callbacks = self._groupPutCallbacks
   var data = self._groupPutData
 
@@ -63,7 +76,7 @@ IdbChunkStore.prototype._groupPut = function () {
   self._groupPutTimeout = null
 
   var trans = self._store.transaction('readwrite')
-  for (var i in data) trans.set(Number(i), data[i])
+  for (var i in data) trans.set(Number(i), data[i], noop)
   trans.onfinish = function (err) {
     for (var j in callbacks) {
       callbacks[j](err)
@@ -75,7 +88,7 @@ IdbChunkStore.prototype.get = function (index, opts, cb) {
   var self = this
   if (typeof opts === 'function') return self.get(index, null, opts)
   if (typeof cb !== 'function') throw new Error('cb must be a function')
-  if (!self._store) throw new Error('Store is closed')
+  if (self.closed) throw new Error('Store is closed')
   if (typeof index !== 'number') throw new Error('index must be a number')
   if (!opts) opts = {}
 
@@ -93,25 +106,38 @@ IdbChunkStore.prototype.get = function (index, opts, cb) {
 }
 
 IdbChunkStore.prototype.close = function (cb) {
-  if (this._store) this._store.close()
-  this._store = null
+  this._close()
   nextTick(cb, null)
+}
+
+IdbChunkStore.prototype._close = function (err) {
+  if (this.closed) return
+  this.closed = true
+
+  this._store.close()
+  this._store = null
+  this._groupPutData = null
+  clearTimeout(this._groupPutTimeout)
+
+  err = err || new Error('Store is closed')
+  for (var i in this._groupPutCallbacks) this._groupPutCallbacks[i](err)
+  this._groupPutCallbacks = null
 }
 
 IdbChunkStore.prototype.destroy = function (cb) {
   var self = this
+  if (self.closed) throw new Error('Store is closed')
 
-  var store = self._store
-  self._store = null
-
-  store.clear(function (err) {
-    store.close()
-    if (cb) cb(err)
-  })
+  self._store.clear(noop)
+  self.close(cb)
 }
 
 function nextTick () {
   if (arguments[0] != null) {
     process.nextTick.apply(this, arguments)
   }
+}
+
+function noop () {
+  // do nothing. This prevents idb-kv-store from defaulting to promises
 }
