@@ -81,7 +81,11 @@ IdbChunkStore.prototype.get = function (index, opts, cb) {
 
   self._store.get(index, function (err, buffer) {
     if (err) return cb(err)
-    if (typeof buffer === 'undefined') return cb(new Error('Chunk does not exist'))
+    if (typeof buffer === 'undefined') {
+      var e = new Error('Chunk does not exist')
+      e.name = 'MissingChunkError'
+      return cb(e)
+    }
     var offset = 'offset' in opts ? opts.offset : 0
     var length = 'length' in opts ? opts.length : buffer.length - offset
     cb(null, (new Buffer(buffer)).slice(offset, offset + length))

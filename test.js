@@ -9,6 +9,7 @@ test('get non-existent chunk', function (t) {
   var store = new IdbChunkStore(10)
   store.get(0, function (err) {
     t.ok(err instanceof Error)
+    t.equal(err.name, 'MissingChunkError')
     t.end()
   })
 })
