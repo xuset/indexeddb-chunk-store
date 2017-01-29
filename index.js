@@ -55,7 +55,7 @@ IdbChunkStore.prototype.put = function (index, buffer, cb) {
   self._groupPutData[index] = buffer
   if (cb) self._groupPutCallbacks.push(cb)
 
-  if (self._lastGroupPut + self._groupPutDelay < new Date().getTime()) {
+  if (self._lastGroupPut + self._groupPutDelay < Date.now()) {
     self._groupPut()
   } else if (self._groupPutTimeout == null) {
     self._groupPutTimeout = setTimeout(self._groupPut.bind(self), self._groupPutDelay)
@@ -70,7 +70,7 @@ IdbChunkStore.prototype._groupPut = function () {
 
   self._groupPutCallbacks = []
   self._groupPutData = {}
-  self._lastGroupPut = new Date().getTime()
+  self._lastGroupPut = Date.now()
 
   if (self._groupPutTimeout != null) clearTimeout(self._groupPutTimeout)
   self._groupPutTimeout = null
