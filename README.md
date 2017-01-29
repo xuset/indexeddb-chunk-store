@@ -33,6 +33,7 @@ The api is compatible with [abstract-chunk-store](https://github.com/mafintosh/a
 Creates a new store with the given `chunkLength`. The following properties can be passed into `opts`:
 * `opts.name` - The name of the IndexedDB database to open. If left undefined, a random database name is generated. If you reuse the same name across multiple IdbChunkStore instances or even web sessions, the data in the store will persist across these instances and sessions.
 * `opts.length` - Limits the size of the chunk store. If left undefined, the store is not constrained by a max size.
+* `opts.groupPutDelay` - The delay in milliseconds to wait for more puts to come before committing the puts to IndexedDB. Defaults to 10 milliseconds. Passing in a negative number disables the delay and all puts are written to IndexedDB immediately. Disabling the grouping can lead to very bad throughput and slow performance.
 
 `cb` is called when the IndexedDB database is opened. Put and get operations can still be done before the db is opened, but they will be queued then processed upon a successful open. If an error occures while opening, the callback is called with `cb(err)` where err is non-null.
 
