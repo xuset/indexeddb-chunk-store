@@ -1,5 +1,7 @@
 # indexeddb-chunk-store [![Build Status](https://travis-ci.org/xuset/indexeddb-chunk-store.svg?branch=master)](https://travis-ci.org/xuset/indexeddb-chunk-store) [![npm](https://img.shields.io/npm/v/indexeddb-chunk-store.svg)](https://npmjs.org/package/indexeddb-chunk-store)
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/xuset/indexeddb-chunk-store.svg)](https://greenkeeper.io/)
+
 #### An [abstract-chunk-store](https://www.npmjs.com/package/abstract-chunk-store) compliant store backed by IndexedDB for the browser
 
 [![abstract chunk store](https://cdn.rawgit.com/mafintosh/abstract-chunk-store/master/badge.svg)](https://github.com/mafintosh/abstract-chunk-store)[![Sauce Test Status](https://saucelabs.com/browser-matrix/xuset-idb-chunk.svg)](https://saucelabs.com/u/xuset-idb-chunk)
