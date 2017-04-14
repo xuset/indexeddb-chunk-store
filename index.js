@@ -45,7 +45,7 @@ IdbChunkStore.prototype.put = function (index, buffer, cb) {
   var self = this
   if (self.closed) throw new Error('Store is closed')
   if (typeof index !== 'number') throw new Error('index must be a number')
-  if (!Buffer.isBuffer(buffer)) buffer = new Buffer(buffer)
+  if (!Buffer.isBuffer(buffer)) buffer = Buffer.from(buffer)
 
   var isLastChunk = (index === self.lastChunkIndex)
   var badLength = (isLastChunk && buffer.length !== self.lastChunkLength) ||
@@ -101,7 +101,7 @@ IdbChunkStore.prototype.get = function (index, opts, cb) {
     }
     var offset = 'offset' in opts ? opts.offset : 0
     var length = 'length' in opts ? opts.length : buffer.length - offset
-    cb(null, (new Buffer(buffer)).slice(offset, offset + length))
+    cb(null, (Buffer.from(buffer)).slice(offset, offset + length))
   })
 }
 

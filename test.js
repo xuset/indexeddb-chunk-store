@@ -20,7 +20,7 @@ test('programmer errors', function (t) {
 
   var store = IdbChunkStore(10, {length: 15})
 
-  t.throws(function () { store.put('foo', new Buffer('0123456789')) })
+  t.throws(function () { store.put('foo', Buffer.from('0123456789')) })
 
   t.throws(function () { store.get(0) })
   t.throws(function () { store.get('foo', function () {}) })
@@ -44,7 +44,7 @@ test('close()', function (t) {
   var store = IdbChunkStore(10)
   store.close(function (err) {
     t.equal(err, null)
-    t.throws(function () { store.put(0, new Buffer('0123456789'), function () {}) })
+    t.throws(function () { store.put(0, Buffer.from('0123456789'), function () {}) })
     t.throws(function () { store.get(0, function () {}) })
     t.doesNotThrow(function () { store.close() })
     t.throws(function () { store.destroy() })
@@ -60,7 +60,7 @@ test('close()', function (t) {
 
 test.skip('contention', function (t) {
   t.timeoutAfter(3000)
-  var buffer = new Buffer(10)
+  var buffer = Buffer.alloc(10)
   var store = IdbChunkStore(10)
   var done = false
 
