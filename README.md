@@ -15,7 +15,7 @@ This module can be used with browserify or the [idbchunkstore.min.js](https://ra
 ```js
 var store = IdbChunkStore(10)
 
-chunks.put(0, new Buffer('01234567890'), function (err) {
+chunks.put(0, Buffer.from('01234567890'), function (err) {
   if (err) throw err
   chunks.get(0, function (err, chunk) {
     if (err) throw err
