@@ -44,7 +44,7 @@
     "run-parallel": "^1.1.6",
     "standard": "^10.0.2",
     "tape": "^4.6.3",
-    "uglify-js": "^3.0.0",
+    "uglify-js": "^3.9.2",
     "watchify": "^3.8.0"
   }
 }
