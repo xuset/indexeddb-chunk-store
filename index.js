@@ -99,8 +99,8 @@ IdbChunkStore.prototype.get = function (index, opts, cb) {
       e.name = 'MissingChunkError'
       return cb(e)
     }
-    var offset = 'offset' in opts ? opts.offset : 0
-    var length = 'length' in opts ? opts.length : buffer.length - offset
+    var offset = opts.offset || 0
+    var length = opts.length || buffer.length - offset
     cb(null, (Buffer.from(buffer)).slice(offset, offset + length))
   })
 }
