@@ -25,8 +25,6 @@ function IdbChunkStore (chunkLength, opts, cb) {
   }
 
   var name = opts.name || '' + Math.round(9e16 * Math.random())
-  // for webtorrent
-  if (opts.torrent && opts.torrent.infoHash) name = opts.torrent.infoHash
 
   self._store = new IdbKvStore(name, cb)
   self._store.on('close', onClose)
