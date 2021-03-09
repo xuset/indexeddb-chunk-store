@@ -25,8 +25,6 @@ function IdbChunkStore (chunkLength, opts, cb) {
   }
 
   var name = opts.name || '' + Math.round(9e16 * Math.random())
-  // for webtorrent
-  if (opts.torrent && opts.torrent.infoHash) name = opts.torrent.infoHash
 
   self._store = new IdbKvStore(name, cb)
   self._store.on('close', onClose)
@@ -99,8 +97,8 @@ IdbChunkStore.prototype.get = function (index, opts, cb) {
       e.name = 'MissingChunkError'
       return cb(e)
     }
-    var offset = 'offset' in opts ? opts.offset : 0
-    var length = 'length' in opts ? opts.length : buffer.length - offset
+    var offset = opts.offset != undefined ? opts.offset : 0
+    var length = opts.length != undefined ? opts.length : buffer.length - offset
     cb(null, (Buffer.from(buffer)).slice(offset, offset + length))
   })
 }
